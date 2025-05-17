@@ -1,36 +1,33 @@
 FROM mcr.microsoft.com/devcontainers/python:3.10
 
-# Install system dependencies
+# Install only essential system dependencies not handled by features.
+# Java, Terraform, AWS CLI, and Git will be installed via devcontainer features.
 RUN apt-get update && apt-get install -y \
     unzip \
     curl \
-    awscli \
-    git \
-    terraform \
-    openjdk-11-jdk \
-    && apt-get clean
+    # سایر وابستگی‌های سیستمی که توسط features پوشش داده نمی‌شوند
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+# Set environment variables for Spark installation (JAVA_HOME is set by feature)
 ENV SPARK_VERSION=3.5.5
 ENV HADOOP_VERSION=3
 ENV SPARK_HOME=/opt/spark
-# Diese ENV PATH ist während des Build-Prozesses für RUN-Befehle nützlich
-ENV PATH=$SPARK_HOME/bin:$JAVA_HOME/bin:$PATH
+# PATH را اینجا برای دستورات RUN تنظیم می‌کنیم،
+# اما PATH نهایی کاربر از .bashrc (که توسط postCreateCommand ویرایش می‌شود) خواهد آمد.
+# JAVA_HOME در زمان build ممکن است هنوز توسط feature تنظیم نشده باشد،
+# پس برای نصب Spark به آن ارجاع نمی‌دهیم، مگر اینکه بدانیم feature قبل از این RUN اجرا شده.
+# فرض می‌کنیم نصب Spark به JAVA_HOME در زمان اجرا نیاز دارد که توسط postCreateCommand تنظیم می‌شود.
+ENV PATH=$SPARK_HOME/bin:$PATH
 
-# Apache Spark herunterladen und installieren
+
+# Download and install Apache Spark
+# این بخش به JAVA_HOME در زمان build نیازی ندارد، فقط در زمان اجرا لازم است.
 RUN mkdir -p $SPARK_HOME && \
     curl -fsSL https://dlcdn.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz -o /tmp/spark.tgz && \
     tar -xzf /tmp/spark.tgz -C $SPARK_HOME --strip-components=1 && \
     rm -f /tmp/spark.tgz && \
-    echo ">>>> Inhalt von $SPARK_HOME/bin während des Builds:" && \  # Hinzugefügt zur Fehlersuche (Debugging)
-    ls -l $SPARK_HOME/bin  # Diese Zeile zeigt den Inhalt im Build-Log an
-
-# Spark und Java zur PATH-Variable der Bash-Shell des Benutzers vscode hinzufügen
-RUN echo '' >> /home/vscode/.bashrc && \
-    echo '# Setze Umgebungsvariablen für Spark und Java' >> /home/vscode/.bashrc && \
-    echo "export JAVA_HOME=${JAVA_HOME}" >> /home/vscode/.bashrc && \
-    echo "export SPARK_HOME=${SPARK_HOME}" >> /home/vscode/.bashrc && \
-    echo 'export PATH="$SPARK_HOME/bin:$JAVA_HOME/bin:$PATH"' >> /home/vscode/.bashrc  # Diese Zeile ist wichtig
+    echo ">>>> Contents of $SPARK_HOME/bin after Spark installation:" && \
+    ls -l $SPARK_HOME/bin
 
 WORKDIR /workspace

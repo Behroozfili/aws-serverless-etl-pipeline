@@ -1,24 +1,43 @@
 {
-  "name": "Serverless ETL ML Pipeline",
+  "name": "Serverless ETL ML Pipeline (with Features)",
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile" // Dockerfile ما ساده‌تر خواهد شد
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "11", // نصب جاوا ۱۱
+      "installMaven": "false",
+      "installGradle": "false"
+    },
+    "ghcr.io/devcontainers/features/terraform:1": {
+      "version": "latest" // نصب آخرین نسخه Terraform
+    },
+    "ghcr.io/devcontainers/features/aws-cli:1": {}, // نصب AWS CLI
+    "ghcr.io/devcontainers/features/git:1": {} // نصب Git (اگرچه معمولاً در ایمیج پایه هست، اما برای اطمینان)
   },
   "containerEnv": {
-  "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64",
-  "SPARK_HOME": "/opt/spark"
-  
-
-},
-
-  "settings": {
-    "terminal.integrated.defaultProfile.linux": "bash"
+    // JAVA_HOME معمولاً به طور خودکار توسط feature جاوا تنظیم می‌شود.
+    // اما SPARK_HOME را اینجا تعریف می‌کنیم.
+    "SPARK_HOME": "/opt/spark"
+    // مسیر JAVA_HOME که توسط feature تنظیم می‌شود را بعداً در .bashrc به PATH اضافه می‌کنیم
   },
-  "postCreateCommand": "pip install -r ml-model/requirements.txt || true",
-  "extensions": [
-    "ms-python.python",
-    "hashicorp.terraform",
-    "amazonwebservices.aws-toolkit-vscode"
-  ],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+        // ممکن است بخواهید JAVA_HOME را اینجا هم برای VS Code تنظیم کنید اگر اکستنشن‌های جاوا به آن نیاز دارند
+        // "java.jdt.ls.java.home": "/usr/lib/jvm/msft-java-11-amd64" // مسیر دقیق باید بعد از ساخت بررسی شود
+      },
+      "extensions": [
+        "ms-python.python",
+        "hashicorp.terraform",
+        "amazonwebservices.aws-toolkit-vscode",
+        "vscjava.vscode-java-pack" // اضافه کردن پک اکستنشن جاوا مفید است
+      ]
+    }
+  },
+  // postCreateCommand برای تنظیم PATH برای Spark و جاوا (اگر JAVA_HOME توسط feature تنظیم نشده باشد)
+  "postCreateCommand": "echo '' >> ~/.bashrc && echo '# Set Spark and Java Environment Variables (added by devcontainer.json)' >> ~/.bashrc && ACTUAL_JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java)))) && echo \"export JAVA_HOME=${ACTUAL_JAVA_HOME}\" >> ~/.bashrc && echo 'export SPARK_HOME=/opt/spark' >> ~/.bashrc && echo 'export PATH=\"$SPARK_HOME/bin:$JAVA_HOME/bin:$PATH\"' >> ~/.bashrc && echo 'SUCCESS: .bashrc has been updated by postCreateCommand. JAVA_HOME set to: '${ACTUAL_JAVA_HOME}'. Please open a new terminal.'",
   "forwardPorts": [],
   "remoteUser": "vscode"
 }
