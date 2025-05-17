@@ -1,0 +1,17 @@
+{
+  "name": "Serverless ETL ML Pipeline",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "postCreateCommand": "pip install -r ml-model/requirements.txt || true",
+  "extensions": [
+    "ms-python.python",
+    "hashicorp.terraform",
+    "amazonwebservices.aws-toolkit-vscode"
+  ],
+  "forwardPorts": [],
+  "remoteUser": "vscode"
+}
