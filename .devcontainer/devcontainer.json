@@ -3,6 +3,13 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
+  "containerEnv": {
+  "JAVA_HOME": "/usr/lib/jvm/java-11-openjdk-amd64",
+  "SPARK_HOME": "/opt/spark",
+  //"PATH": "${SPARK_HOME}/bin:${JAVA_HOME}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
+},
+
   "settings": {
     "terminal.integrated.defaultProfile.linux": "bash"
   },
