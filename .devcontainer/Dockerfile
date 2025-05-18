@@ -31,3 +31,5 @@ RUN mkdir -p $SPARK_HOME && \
     ls -l $SPARK_HOME/bin
 
 WORKDIR /workspace
+COPY ../ml-model/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
