@@ -1,7 +1,9 @@
 {
   "name": "Serverless ETL ML Pipeline (with Features)",
   "build": {
-    "dockerfile": "Dockerfile" // Dockerfile ما ساده‌تر خواهد شد
+    "dockerfile": "Dockerfile",
+
+    "context": ".."
   },
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
