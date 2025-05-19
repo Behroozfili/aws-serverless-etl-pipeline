@@ -8,7 +8,7 @@ def main():
     spark = SparkSession.builder.appName("Clean Online Retail Data").getOrCreate()
 
     # Define input and output file paths
-    input_path = "ml-model/data/Online Retail.csv"
+    input_path = "ml-model/data/Online_Retail.csv"
     output_path = "ml-model/data/output/cleaned_data"
 
     # Read CSV data with header and infer schema
